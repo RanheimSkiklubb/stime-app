@@ -6,7 +6,9 @@ The app has functionality for Race starting with scrolling list of participants.
 
 ### Run in development mode
 To run the app in development mode (for the ios app you need a mac) you need to:
- 1. Start metro server with `npm start`
+ 1. Install dependencies: `npm install`
+ 1. Install ios Cocoa pods: `cd ios && pod install`
+ 1. Start metro server: `npm start` (be sure to do this from project root directory)
  1. Run the app in a simulator or on a real device (if a device is plugged in it will start there)
     * Android: `npm run android`
     * iOS: `npm run ios`
