@@ -24,7 +24,7 @@
     "@react-native-firebase/storage": "^6.3.4",
     "@react-navigation/native": "^5.0.8",
     "@react-navigation/stack": "^5.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "react": "16.9.0",
     "react-native": "0.61.5",
