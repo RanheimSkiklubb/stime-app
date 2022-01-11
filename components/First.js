@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'lightgreen',
-    fontSize: 60,
+    fontSize: 50,
     lineHeight: 80,
   },
   timeView: {
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   },
   time: {
     color: 'lightgreen',
-    fontSize: 100,
+    fontSize: 80,
     lineHeight: 120,
   },
   remaining: {

@@ -41,7 +41,7 @@ const EventPage = ({navigation}) => {
       });
 
       console.log('Participants fetched: ', list);
-      setEvents(list);
+      setEvents(_.orderBy(list, ['startTime'], ['desc']));
 
       if (loading) {
         setLoading(false);
