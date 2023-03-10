@@ -5,7 +5,7 @@ import Time from '../organisms/Time';
 import {sortBy, isEmpty} from 'lodash';
 import firestore from '@react-native-firebase/firestore';
 import {TimeContext} from '../contexts/TimeContext';
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 const styles = StyleSheet.create({
   heading: {

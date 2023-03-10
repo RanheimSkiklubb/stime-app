@@ -13,7 +13,6 @@ const Event = event => {
     event.startListGenerated && startTime.isAfter(dayjs().startOf('day'));
 
   const title = `${event.name} - ${event.eventType}`;
-  //console.log('Start time: ', startTime, startTime.locale());
   return (
     <SubtitleListItem
       image={
@@ -26,7 +25,7 @@ const Event = event => {
       title={title}
       valid={readyToStart}
       subtitle={dayjs(event.startTime.toDate()).format('D MMMM YYYY HH:mm')}
-      onPress={() => navigation.navigate('Menu', {event})}
+      onPress={() => navigation.navigate('Menu', {eventId: event.id})}
     />
   );
 };

@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
 const MenuPage = ({route, navigation}) => {
   dayjs.locale('nb');
 
-  const [eventId, setEventId] = useState(route.params.event.id);
-  const [event, setEvent] = useState(route.params.event);
+  const [eventId, setEventId] = useState(route.params.eventId);
+  const [event, setEvent] = useState();
 
   useEffect(() => {
     firestore()
@@ -68,10 +68,12 @@ const MenuPage = ({route, navigation}) => {
   }, [eventId]);
 
   useEffect(() => {
-    const title = `Meny - ${dayjs(event.startTime.toDate()).format(
-      'DD.MM.YYYY',
-    )}: ${event.name} - ${event.eventType}`;
-    navigation.setOptions({title: title});
+    if (event) {
+      const title = `Meny - ${dayjs(event.startTime.toDate()).format(
+        'DD.MM.YYYY',
+      )}: ${event.name} - ${event.eventType}`;
+      navigation.setOptions({title: title});
+    }
   }, [event, navigation]);
 
   const menuItems = [
@@ -101,20 +103,22 @@ const MenuPage = ({route, navigation}) => {
     },
   ];
 
-  const readyToStart =
-    event.startListGenerated &&
-    dayjs(event.startTime.toDate()).isAfter(dayjs().startOf('day'));
+  const readyToStart = event
+    ? event.startListGenerated &&
+      dayjs(event.startTime.toDate()).isAfter(dayjs().startOf('day'))
+    : false;
 
-  const open = (item, eventt) => {
+  const open = (item, event) => {
     if (readyToStart) {
-      navigation.navigate(item.page, {event});
+      navigation.navigate(item.page, event);
     } else if (item.page == 'About') {
-      navigation.navigate(item.page, {event});
+      navigation.navigate(item.page, event);
     }
   };
 
   return (
     <View style={styles.container}>
+      <Text style={{color: 'white'}}>Event id: {eventId}</Text>
       <EventHeader {...event} />
       <FlatList
         style={styles.list}

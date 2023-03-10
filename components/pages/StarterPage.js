@@ -3,7 +3,7 @@ import {useState} from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/nb';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import {StyleSheet, View, ScrollView} from 'react-native';
+import {StyleSheet, View, ScrollView, Text} from 'react-native';
 import Time from '../organisms/Time';
 import First from '../organisms/First';
 import {
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   first: {
-    backgroundColor: 'lightblue',
+    backgroundColor: '#023abd',
   },
   clock: {},
   text: {
@@ -55,8 +55,8 @@ const StarterPage = ({route, navigation}) => {
     const initial = !isEmpty(notStarted)
       ? head(notStarted)
       : {
-          startNumber: '0',
-          startTime: '00:00:00',
+          startNumber: '',
+          startTime: '',
           firstName: 'No more',
           lastName: 'participants.',
         };
@@ -95,9 +95,9 @@ const StarterPage = ({route, navigation}) => {
   const secondsToGo = (now, startTime) => {
     if (now && startTime) {
       const start = dayjs(startTime, 'HH:mm:ss');
-      return start.diff(now, 'seconds') + 1;
+      return start.diff(now, 'seconds');
     } else {
-      return -999;
+      return -1;
     }
   };
 
@@ -106,40 +106,34 @@ const StarterPage = ({route, navigation}) => {
     const participants = event.participants.filter(participant =>
       dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
     );
-    console.log(participants);
-    let secToGo = secondsToGo(currentTime, head(participants).startTime);
-    if (secToGo < 0) {
-      const filtered = take(
-        participants.filter(participant =>
-          dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
-        ),
-        300,
-      );
-      console.log(filtered);
-      if (!isEmpty(filtered)) {
-        const [starting, remaining] = findStarting(filtered);
-        secToGo = secondsToGo(time, head(starting).startTime);
-        setFirst(starting);
-        setNext(remaining);
-      } else {
-        setFirst([
-          {
-            startNumber: '',
-            startTime: '',
-            firstName: 'No more',
-            lastName: 'participants.',
-          },
-        ]);
-        setNext([]);
-      }
+    let secToGo = 0;
+    const filtered = takeWhile(participants, participant =>
+      dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
+    );
+    if (!isEmpty(filtered)) {
+      const [starting, remaining] = findStarting(filtered);
+      secToGo = secondsToGo(currentTime, head(starting).startTime);
+      setFirst(starting);
+      setNext(remaining);
+    } else {
+      setFirst([
+        {
+          startNumber: '',
+          startTime: '',
+          firstName: 'No more',
+          lastName: 'participants.',
+        },
+      ]);
+      setNext([]);
     }
     setTimeToGo(secToGo);
-  }, []);
-
+  }, [time, event]);
+  //console.log('Event: ', event);
   return isEmpty(event.participants) ? (
     <View style={styles.container} />
   ) : (
     <View style={styles.container}>
+      <Text style={{color: 'white'}}>Event id: {event.id}</Text>
       <View style={styles.clock}>
         <Time time={time} />
       </View>
