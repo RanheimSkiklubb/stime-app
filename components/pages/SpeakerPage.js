@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet, ScrollView, FlatList} from 'react-native';
 import SpeakerParticipant from '../organisms/SpeakerParticipant';
 import Time from '../organisms/Time';
 import {sortBy, isEmpty} from 'lodash';
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
 });
 
 const SpeakerPage = ({route, navigation}) => {
-  const [eventId, setEventId] = useState(route.params.event.id);
+  const [eventId, setEventId] = useState(route.params.eventId);
   const [event, setEvent] = useState(route.params.event);
   const time = useContext(TimeContext);
 
@@ -64,25 +64,30 @@ const SpeakerPage = ({route, navigation}) => {
           setEvent(arr);
         }
       });
-    const title = `${dayjs(event.startTime.toDate()).format('DD.MM.YYYY')}: ${
-      event.name
-    } - ${event.eventType}`;
-    navigation.setOptions({title: title});
   }, [eventId]);
 
-  return isEmpty(event.participants) ? (
-    <View style={styles.container} />
-  ) : (
+  useEffect(() => {
+    if (event && event.startTime && !isEmpty(event.participants)) {
+      const title = `Tidtaker - ${dayjs(event.startTime.toDate()).format(
+        'DD.MM.YYYY',
+      )}: ${event.name} - ${event.eventType}`;
+      navigation.setOptions({title: title});
+    }
+  }, [event]);
+
+  return event && !isEmpty(event.participants) ? (
     <View style={styles.container}>
       <View style={styles.clock}>
         <Time time={time} />
       </View>
-      <ScrollView>
-        {event.participants.map(participant => (
-          <SpeakerParticipant {...participant} />
-        ))}
-      </ScrollView>
+      <FlatList
+        data={event.participants}
+        keyExtractor={item => item.startNumber}
+        renderItem={({item}) => <SpeakerParticipant {...item} />}
+      />
     </View>
+  ) : (
+    <View style={styles.container} />
   );
 };
 export default SpeakerPage;

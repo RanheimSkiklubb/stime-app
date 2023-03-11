@@ -9,8 +9,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     paddingTop: 0,
   },
-  textView: {
-  },
+  textView: {},
   text: {
     color: 'lightgreen',
     fontSize: 42,
@@ -44,9 +43,9 @@ export default function First(props) {
     } else {
       return timeToGo;
     }
-  }
+  };
   return (
-    <View style={styles.view} key={startNumber}>
+    <View style={styles.view}>
       <View style={styles.textView}>
         <BaseText style={styles.text}>
           {_.padStart(startNumber, 3, ' ')}{' '}

@@ -3,7 +3,7 @@ import {useState} from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/nb';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import {StyleSheet, View, ScrollView, Text} from 'react-native';
+import {StyleSheet, View, ScrollView, Text, FlatList} from 'react-native';
 import Time from '../organisms/Time';
 import First from '../organisms/First';
 import {
@@ -20,6 +20,7 @@ import useInterval from '../hooks/useInterval';
 import StarterParticipant from '../organisms/StarterParticipant';
 import firestore from '@react-native-firebase/firestore';
 import {TimeContext} from '../contexts/TimeContext';
+import {EventContext} from '../contexts/EventContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -43,13 +44,14 @@ const StarterPage = ({route, navigation}) => {
   let timerID = null;
   let initialTime = dayjs();
   let second = initialTime.second();
-  const [eventId, setEventId] = useState(route.params.event.id);
-  const [event, setEvent] = useState(route.params.event);
+  const [eventId, setEventId] = useState(route.params.eventId);
+  const [event, setEvent] = useState();
   //const [time, setTime] = useState('00:00:00');
   const [first, setFirst] = useState([]);
   const [timeToGo, setTimeToGo] = useState(0);
   const [next, setNext] = useState([]);
   const time = useContext(TimeContext);
+  //const event = useContext(EventContext);
 
   const findStarting = notStarted => {
     const initial = !isEmpty(notStarted)
@@ -80,16 +82,18 @@ const StarterPage = ({route, navigation}) => {
           setEvent(arr);
         }
       });
-  });
+  }, [eventId]);
 
   useEffect(() => {
-    const title = `Starter - ${dayjs(event.startTime.toDate()).format(
-      'DD.MM.YYYY',
-    )}: ${event.name} - ${event.eventType}`;
-    navigation.setOptions({title: title});
-    const [starting, remaining] = findStarting(event.participants);
-    setFirst(starting);
-    setNext(remaining);
+    if (event && event.startTime && event.participants) {
+      const title = `Starter - ${dayjs(event.startTime.toDate()).format(
+        'DD.MM.YYYY',
+      )}: ${event.name} - ${event.eventType}`;
+      navigation.setOptions({title: title});
+      const [starting, remaining] = findStarting(event.participants);
+      setFirst(starting);
+      setNext(remaining);
+    }
   }, [event, navigation]);
 
   const secondsToGo = (now, startTime) => {
@@ -102,52 +106,53 @@ const StarterPage = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    const currentTime = dayjs(time, 'HH:mm:ss');
-    const participants = event.participants.filter(participant =>
-      dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
-    );
-    let secToGo = 0;
-    const filtered = takeWhile(participants, participant =>
-      dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
-    );
-    if (!isEmpty(filtered)) {
-      const [starting, remaining] = findStarting(filtered);
-      secToGo = secondsToGo(currentTime, head(starting).startTime);
-      setFirst(starting);
-      setNext(remaining);
-    } else {
-      setFirst([
-        {
-          startNumber: '',
-          startTime: '',
-          firstName: 'No more',
-          lastName: 'participants.',
-        },
-      ]);
-      setNext([]);
+    if (event && !isEmpty(event.participants)) {
+      const currentTime = dayjs(time, 'HH:mm:ss');
+      const participants = event.participants.filter(participant =>
+        dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
+      );
+      let secToGo = 0;
+      const filtered = takeWhile(participants, participant =>
+        dayjs(participant.startTime, 'HH:mm:ss').isAfter(currentTime),
+      );
+      if (!isEmpty(filtered)) {
+        const [starting, remaining] = findStarting(filtered);
+        secToGo = secondsToGo(currentTime, head(starting).startTime);
+        setFirst(starting);
+        setNext(remaining);
+      } else {
+        setFirst([
+          {
+            startNumber: '',
+            startTime: '',
+            firstName: 'No more',
+            lastName: 'participants.',
+          },
+        ]);
+        setNext([]);
+      }
+      setTimeToGo(secToGo);
     }
-    setTimeToGo(secToGo);
   }, [time, event]);
   //console.log('Event: ', event);
-  return isEmpty(event.participants) ? (
-    <View style={styles.container} />
-  ) : (
+  return event && !isEmpty(event.participants) ? (
     <View style={styles.container}>
-      <Text style={{color: 'white'}}>Event id: {event.id}</Text>
       <View style={styles.clock}>
         <Time time={time} />
       </View>
-      <ScrollView style={styles.first}>
-        {first.map(participant => (
-          <First item={participant} timeToGo={timeToGo} />
-        ))}
-      </ScrollView>
-      <ScrollView>
-        {next.map(participant => (
-          <StarterParticipant {...participant} />
-        ))}
-      </ScrollView>
+      <FlatList
+        data={first}
+        keyExtractor={item => item.startNumber}
+        renderItem={({item}) => <First item={item} timeToGo={timeToGo} />}
+      />
+      <FlatList
+        data={next}
+        keyExtractor={item => item.startNumber}
+        renderItem={({item}) => <StarterParticipant {...item} />}
+      />
     </View>
+  ) : (
+    <View style={styles.container} />
   );
 };
 

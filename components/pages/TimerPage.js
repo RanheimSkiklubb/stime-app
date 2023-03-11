@@ -56,7 +56,7 @@ const TimerPage = ({route, navigation}) => {
   dayjs.locale('nb');
   dayjs.extend(customParseFormat);
 
-  const [eventId, setEventId] = useState(route.params.event.id);
+  const [eventId, setEventId] = useState(route.params.eventId);
   const [event, setEvent] = useState(route.params.event);
   const [participants, setParticipants] = useState([]);
   const [started, setStarted] = useState(false);
@@ -64,7 +64,8 @@ const TimerPage = ({route, navigation}) => {
 
   const time = useContext(TimeContext);
 
-  const hasStarted = evt => dayjs().isAfter(dayjs(evt.startTime.toDate()));
+  const hasStarted = evt =>
+    event ? dayjs().isAfter(dayjs(evt.startTime.toDate())) : false;
 
   const registerTime = participant => {
     console.log(
@@ -118,11 +119,13 @@ const TimerPage = ({route, navigation}) => {
   }, [eventId]);
 
   useEffect(() => {
-    const title = `Tidtaker - ${dayjs(event.startTime.toDate()).format(
-      'DD.MM.YYYY',
-    )}: ${event.name} - ${event.eventType}`;
-    navigation.setOptions({title: title});
-    setParticipants(initializeParticipants(event));
+    if (event && event.startTime && !isEmpty(event.participants)) {
+      const title = `Tidtaker - ${dayjs(event.startTime.toDate()).format(
+        'DD.MM.YYYY',
+      )}: ${event.name} - ${event.eventType}`;
+      navigation.setOptions({title: title});
+      setParticipants(initializeParticipants(event));
+    }
   }, [event]);
 
   useEffect(() => {
@@ -133,17 +136,21 @@ const TimerPage = ({route, navigation}) => {
     }
   }, [started, time]);
 
-  return (
+  return event && !isEmpty(event.participants) ? (
     <View style={styles.container}>
       <View style={styles.clock}>
         <Time time={time} />
       </View>
-      <ScrollView>
-        {participants.map(item => (
+      <FlatList
+        data={event.participants}
+        keyExtractor={item => item.startNumber}
+        renderItem={({item}) => (
           <TimerParticipant {...item} save={it => registerTime(it)} />
-        ))}
-      </ScrollView>
+        )}
+      />
     </View>
+  ) : (
+    <View style={styles.container} />
   );
 };
 

@@ -4,11 +4,12 @@ import BaseText from '../atoms/BaseText';
 
 const EventHeader = event => {
   dayjs.locale('nb');
-  const title = event
-    ? `${dayjs(event.startTime.toDate()).format('DD.MM.YYYY')}: ${
-        event.name
-      } - ${event.eventType}`
-    : 'None';
+  const title =
+    event && event.startTime
+      ? `${dayjs(event.startTime.toDate()).format('DD.MM.YYYY')}: ${
+          event.name
+        } - ${event.eventType}`
+      : 'None';
 
   return <BaseText>{title}</BaseText>;
 };

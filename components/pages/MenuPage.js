@@ -3,12 +3,10 @@ import {FlatList, View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/nb';
-import {useNavigation} from '@react-navigation/native';
 import EventHeader from '../organisms/EventHeader';
 import _ from 'lodash';
 import firestore from '@react-native-firebase/firestore';
-import useInterval from '../hooks/useInterval';
-import {TimeContext} from '../contexts/TimeContext';
+import {EventContext} from '../contexts/EventContext';
 
 const styles = StyleSheet.create({
   heading: {
@@ -110,15 +108,14 @@ const MenuPage = ({route, navigation}) => {
 
   const open = (item, event) => {
     if (readyToStart) {
-      navigation.navigate(item.page, event);
+      navigation.navigate(item.page, {eventId});
     } else if (item.page == 'About') {
-      navigation.navigate(item.page, event);
+      navigation.navigate(item.page, {eventId});
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={{color: 'white'}}>Event id: {eventId}</Text>
       <EventHeader {...event} />
       <FlatList
         style={styles.list}
