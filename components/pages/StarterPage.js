@@ -78,7 +78,7 @@ const StarterPage = ({route, navigation}) => {
       .onSnapshot(documentSnapshot => {
         const arr = documentSnapshot.data();
         if (!isEmpty(arr)) {
-          arr.participants = sortBy(arr.participants, [p => p.startNumber]);
+          arr.participants = sortBy(arr.participants, [p => p.startTime]);
           setEvent(arr);
         }
       });

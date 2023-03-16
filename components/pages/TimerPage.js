@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, FlatList, ScrollView} from 'react-native';
 import dayjs from 'dayjs';
 import 'dayjs/locale/nb';
@@ -9,6 +9,7 @@ import useInterval from '../hooks/useInterval';
 import TimerParticipant from '../organisms/TimerParticipant';
 import firestore from '@react-native-firebase/firestore';
 import {TimeContext} from '../contexts/TimeContext';
+import BaseText from '../atoms/BaseText';
 
 const styles = StyleSheet.create({
   heading: {
@@ -64,8 +65,9 @@ const TimerPage = ({route, navigation}) => {
 
   const time = useContext(TimeContext);
 
-  const hasStarted = evt =>
-    event ? dayjs().isAfter(dayjs(evt.startTime.toDate())) : false;
+  const hasStarted = useCallback(evt =>
+    evt ? dayjs().isAfter(dayjs(evt.startTime.toDate())) : false,
+  );
 
   const registerTime = participant => {
     console.log(
@@ -134,10 +136,11 @@ const TimerPage = ({route, navigation}) => {
     } else {
       updateParticipants();
     }
-  }, [started, time]);
+  }, [event, hasStarted, started, time, updateParticipants]);
 
   return event && !isEmpty(event.participants) ? (
     <View style={styles.container}>
+      <BaseText style={{color: 'white'}}>Started: {started}</BaseText>
       <View style={styles.clock}>
         <Time time={time} />
       </View>

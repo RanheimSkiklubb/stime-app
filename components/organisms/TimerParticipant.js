@@ -49,6 +49,7 @@ export default function TimerParticipant({
   lastName,
   startNumber,
   startTime,
+  startDiff,
   save,
 }) {
   const fullName = `${firstName} ${lastName}`;
